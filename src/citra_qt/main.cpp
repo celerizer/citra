@@ -548,13 +548,13 @@ void GMainWindow::InitializeHotkeys() {
             &QShortcut::activated, ui.action_Enable_Frame_Advancing, &QAction::trigger);
     connect(hotkey_registry.GetHotkey(main_window, QStringLiteral("Advance Frame"), this),
             &QShortcut::activated, ui.action_Advance_Frame, &QAction::trigger);
-    connect(hotkey_registry.GetHotkey(main_window, QStringLiteral("Load Amiibo"), this),
+    connect(hotkey_registry.GetHotkey(main_window, QStringLiteral("Load amiibo"), this),
             &QShortcut::activated, this, [&] {
                 if (ui.action_Load_Amiibo->isEnabled()) {
                     OnLoadAmiibo();
                 }
             });
-    connect(hotkey_registry.GetHotkey(main_window, QStringLiteral("Remove Amiibo"), this),
+    connect(hotkey_registry.GetHotkey(main_window, QStringLiteral("Remove amiibo"), this),
             &QShortcut::activated, this, [&] {
                 if (ui.action_Remove_Amiibo->isEnabled()) {
                     OnRemoveAmiibo();
@@ -1754,8 +1754,8 @@ void GMainWindow::OnConfigure() {
 
 void GMainWindow::OnLoadAmiibo() {
     const QString extensions{QStringLiteral("*.bin")};
-    const QString file_filter = tr("Amiibo File (%1);; All Files (*.*)").arg(extensions);
-    const QString filename = QFileDialog::getOpenFileName(this, tr("Load Amiibo"), {}, file_filter);
+    const QString file_filter = tr("amiibo File (%1);; All Files (*.*)").arg(extensions);
+    const QString filename = QFileDialog::getOpenFileName(this, tr("Load amiibo"), {}, file_filter);
 
     if (filename.isEmpty()) {
         return;
@@ -1768,31 +1768,13 @@ void GMainWindow::LoadAmiibo(const QString& filename) {
     Core::System& system{Core::System::GetInstance()};
     Service::SM::ServiceManager& sm = system.ServiceManager();
     auto nfc = sm.GetService<Service::NFC::Module::Interface>("nfc:u");
-    if (nfc == nullptr) {
+    if (nfc == nullptr)
         return;
-    }
-
-    QFile nfc_file{filename};
-    if (!nfc_file.open(QIODevice::ReadOnly)) {
-        QMessageBox::warning(this, tr("Error opening Amiibo data file"),
-                             tr("Unable to open Amiibo file \"%1\" for reading.").arg(filename));
-        return;
-    }
-
-    Service::NFC::AmiiboData amiibo_data{};
-    const u64 read_size =
-        nfc_file.read(reinterpret_cast<char*>(&amiibo_data), sizeof(Service::NFC::AmiiboData));
-    if (read_size != sizeof(Service::NFC::AmiiboData)) {
-        QMessageBox::warning(this, tr("Error reading Amiibo data file"),
-                             tr("Unable to fully read Amiibo data. Expected to read %1 bytes, but "
-                                "was only able to read %2 bytes.")
-                                 .arg(sizeof(Service::NFC::AmiiboData))
-                                 .arg(read_size));
-        return;
-    }
-
-    nfc->LoadAmiibo(amiibo_data);
-    ui.action_Remove_Amiibo->setEnabled(true);
+    else if (nfc->LoadAmiibo(filename.toStdString()))
+        ui.action_Remove_Amiibo->setEnabled(true);
+    else
+        QMessageBox::warning(this, tr("Error opening amiibo data file"),
+                             tr("Unable to open amiibo file \"%1\" for reading.").arg(filename));
 }
 
 void GMainWindow::OnRemoveAmiibo() {
@@ -2234,7 +2216,7 @@ bool GMainWindow::DropAction(QDropEvent* event) {
     const QString& filename = mime_data->urls().at(0).toLocalFile();
 
     if (emulation_running && QFileInfo(filename).suffix() == QStringLiteral("bin")) {
-        // Amiibo
+        // amiibo
         LoadAmiibo(filename);
     } else {
         // Game
