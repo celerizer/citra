@@ -69,12 +69,11 @@ SERIALIZE_IMPL(Module)
 */
 struct TagInfo {
     u16_le id_offset_size;
-    u8 unk1;
-    u8 unk2;
+    u8 unknown1;
+    u8 unknown2;
     std::array<u8, 0x28> id;
 };
-static_assert(sizeof(TagInfo) == 0x2C,
-              "TagInfo is an invalid size");
+static_assert(sizeof(TagInfo) == 0x2C, "TagInfo is an invalid size");
 
 struct AmiiboConfig {
     u16_le last_write_year;
@@ -90,8 +89,7 @@ struct AmiiboConfig {
     u16_le appdata_size;
     INSERT_PADDING_BYTES(0x30);
 };
-static_assert(sizeof(AmiiboConfig) == 0x40,
-              "AmiiboConfig is an invalid size");
+static_assert(sizeof(AmiiboConfig) == 0x40, "AmiiboConfig is an invalid size");
 
 struct IdentificationBlockReply {
     u16_le char_id;
@@ -196,8 +194,8 @@ void Module::Interface::GetTagInfo(Kernel::HLERequestContext& ctx) {
         std::memcpy(tag_info.id.data(), amiibo->uuid.data(), amiibo->uuid.size());
         tag_info.id_offset_size = (u16_le)amiibo->uuid.size();
     }
-    tag_info.unk1 = 0x0;
-    tag_info.unk2 = 0x2;
+    tag_info.unknown1 = 0x0;
+    tag_info.unknown2 = 0x2;
 
     IPC::RequestBuilder rb = rp.MakeBuilder(12, 0);
     rb.Push(RESULT_SUCCESS);
@@ -229,7 +227,8 @@ void Module::Interface::GetAmiiboSettings(Kernel::HLERequestContext& ctx) {
     }
 
     std::memcpy(amiibo_settings.mii.data(), amiibo->mii.data(), sizeof(AmiiboSettings::mii));
-    std::memcpy(amiibo_settings.nickname.data(), amiibo->nickname.data(), sizeof(AmiiboSettings::nickname));
+    std::memcpy(amiibo_settings.nickname.data(), amiibo->nickname.data(),
+                sizeof(AmiiboSettings::nickname));
 
     /* Apparently only the least significant 4 bits get read in here. */
     amiibo_settings.flags = amiibo->flags & 0xF;

@@ -53,8 +53,7 @@ struct AmiiboDataEnc {
     u8 series;
     INSERT_PADDING_BYTES(0x1C1);
 };
-static_assert(sizeof(AmiiboDataEnc) == 0x21C,
-              "AmiiboDataEnc is an invalid size");
+static_assert(sizeof(AmiiboDataEnc) == 0x21C, "AmiiboDataEnc is an invalid size");
 
 /*
   A decrypted amiibo. Functionality includes reading/writing nickname,
@@ -88,8 +87,7 @@ struct AmiiboDataDec {
     /*1E3 01*/ u8 unknown3; // always 02?
     /*1E4 38*/ std::array<u8, 0x38> dummy3;
 };
-static_assert(sizeof(AmiiboDataDec) == 0x21C,
-              "AmiiboDataDec is an invalid size");
+static_assert(sizeof(AmiiboDataDec) == 0x21C, "AmiiboDataDec is an invalid size");
 
 struct AmiiboSettings {
     std::array<u8, 0x60> mii;
@@ -101,17 +99,15 @@ struct AmiiboSettings {
     u8 setup_day;
     std::array<u8, 0x2C> dummy;
 };
-static_assert(sizeof(AmiiboSettings) == 0xA8,
-              "AmiiboSettings is an invalid size");
+static_assert(sizeof(AmiiboSettings) == 0xA8, "AmiiboSettings is an invalid size");
 
 struct AmiiboWriteRequest {
-    u8 uuid[0x07];
+    std::array<u8, 7> uuid;
     u16 unknown1;
     u8 uuid_length;
-    u8 unknown2[0x15];
+    std::array<u8, 0x15> unknown2;
 };
-static_assert(sizeof(AmiiboWriteRequest) == 0x1F,
-              "AmiiboWriteRequest is an invalid size");
+static_assert(sizeof(AmiiboWriteRequest) == 0x1F, "AmiiboWriteRequest is an invalid size");
 
 #pragma pack(pop)
 
